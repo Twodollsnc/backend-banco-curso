@@ -94,7 +94,6 @@ src/
 
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-
+https://github.com/Twodollsnc/backend-banco-curso.git
 
 
