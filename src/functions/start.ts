@@ -1,6 +1,7 @@
 import express from "express"
 import { InitializeBanco } from "../data/init"
 import { db } from "../data/connection" 
+import { createTables } from "../data/Createtables";
 import { error } from "node:console";
 
 const PORTA = 8000
@@ -11,6 +12,7 @@ export async function startServer(){
     try
     {
         await InitializeBanco();
+        await createTables();
         await db.getConnection();
         console.log("Banco pronto");
         app.listen(PORTA, ()=>{ console.log("Servidor iniciado com sucesso");})

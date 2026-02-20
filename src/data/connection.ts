@@ -1,9 +1,11 @@
-import mysql2 from "mysql2/promise"
+import mysql2 from "mysql2/promise";
+import { env } from "../config/env";
+
 export const db = mysql2.createPool({
-    host:"localhost",
-    user:"root",
-    password:"123456",
-    database:"DB_DigitalBank",
-    waitForConnections:true,
-    connectionLimit:10
-})
+    host:             env.db.host,
+    user:             env.db.user,
+    password:         env.db.password,
+    database:         env.db.name,
+    waitForConnections: true,
+    connectionLimit:  env.db.connectionLimit,
+});

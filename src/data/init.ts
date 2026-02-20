@@ -1,22 +1,24 @@
-import mysql from "mysql2/promise"
-
-const NameDB = "DB_DigitalBank"
+import mysql from "mysql2/promise";
+import { env } from "../config/env";
 
 export async function InitializeBanco() {
-    const conection = await mysql.createConnection({
-        host:"localhost",
-        user:"root",
-        password:"123456"
+    const connection = await mysql.createConnection({
+        host:     env.db.host,
+        user:     env.db.user,
+        password: env.db.password,
     });
-    const [rows] = await conection.query(`show databases like '${NameDB}'`)
-    if((rows as any[]).length === 0){
-        console.log("Banco de dados nao existente, criando um");
-        await conection.query(`CREATE DATABASE ${NameDB}`)
-        console.log("Banco de dados criado");        
+
+    const [rows] = await connection.query(
+        `SHOW DATABASES LIKE '${env.db.name}'`
+    );
+
+    if ((rows as any[]).length === 0) {
+        console.log("Banco não encontrado — criando...");
+        await connection.query(`CREATE DATABASE ${env.db.name}`);
+        console.log(`Banco '${env.db.name}' criado com sucesso!`);
+    } else {
+        console.log(`Banco '${env.db.name}' já existe.`);
     }
-    else
-    {
-        console.log("Banco de dados existente");
-    }
-    await conection.end();
+
+    await connection.end();
 }
