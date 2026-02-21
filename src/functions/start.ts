@@ -3,12 +3,17 @@ import { InitializeBanco } from "../data/init"
 import { db } from "../data/connection" 
 import { createTables } from "../data/Createtables";
 import { error } from "node:console";
+import { env } from '../config/env'
+import { rateLimiter } from "../middlewares/rateLimiter";
+import { AuthRouter } from "../routers/authRouters";
 
-const PORTA = 8000
+
+const PORTA = env.server.port
 export async function startServer(){
     const app = express();
-
     app.use(express.json())
+    app.use(rateLimiter)
+    app.use("/auth", AuthRouter);
     try
     {
         await InitializeBanco();

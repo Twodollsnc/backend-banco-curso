@@ -12,11 +12,14 @@ export async function InitializeBanco() {
         `SHOW DATABASES LIKE '${env.db.name}'`
     );
 
-    if ((rows as any[]).length === 0) {
+    if ((rows as any[]).length === 0) 
+    {
         console.log("Banco não encontrado — criando...");
         await connection.query(`CREATE DATABASE ${env.db.name}`);
         console.log(`Banco '${env.db.name}' criado com sucesso!`);
-    } else {
+    } 
+    else
+    {
         console.log(`Banco '${env.db.name}' já existe.`);
     }
 

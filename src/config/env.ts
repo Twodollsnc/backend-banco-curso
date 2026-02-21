@@ -1,3 +1,4 @@
+import { get } from "node:http";
 import { getEnv } from "./getEnv"
 
 export const env = {
@@ -10,5 +11,9 @@ export const env = {
         password:        getEnv("DB_PASSWORD"),
         name:            getEnv("DB_NAME",             "DB_DigitalBank"),
         connectionLimit: Number(getEnv("DB_CONNECTION_LIMIT", "10")),
+    },
+    jwt:{
+        secret:         getEnv("JWT_SECRET"),
+        expireIn:       getEnv("JWT_EXPIRES_IN", "8h")
     },
 };
