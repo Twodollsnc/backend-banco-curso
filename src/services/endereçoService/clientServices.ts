@@ -1,12 +1,12 @@
 import brcypt from "bcrypt"
-import { db } from "../data/connection"
-import { ICriarCliente } from "../types/IClienteCreate"
+import { db } from "../../data/connection"
+import { ICriarCliente } from "../../types/IClienteCreate"
 import { ResultSetHeader } from "mysql2"
 
 export async function registrarCliente (dados: ICriarCliente)
 {
     const [cpfExiste] = await db.query(
-        `SELECT id_clientes FROM clientes WHERE cpf = ?`, [dados.cpf]
+        `SELECT id_cliente FROM clientes WHERE cpf = ?`, [dados.cpf]
     )
     if((cpfExiste as any[]).length > 0) throw new Error("CPF já cadatrado")
 

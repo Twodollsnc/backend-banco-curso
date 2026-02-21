@@ -140,6 +140,32 @@ src/
 - Autenticação via **JWT** com expiração configurável
 - Proteção contra força bruta com **rate limiting**
 - Credenciais protegidas via **.env** (nunca no código)
+---
+
+## 📡 Endpoints Disponíveis
+
+### Auth (público)
+| Método | Rota             | Descrição           |
+|--------|-----------------|---------------------|
+| POST   | /auth/registro  | Cadastrar cliente   |
+
+---
+
+## 📋 Exemplo de Uso
+
+### Registro de cliente
+```json
+POST /auth/registro
+
+{
+    "nome_completo":   "João Silva",
+    "cpf":             "123.456.789-00",
+    "data_nascimento": "1990-01-15",
+    "email":           "joao@email.com",
+    "telefone":        "11999999999",
+    "senha":           "minhasenha123"
+}
+```
 
 ---
 
@@ -189,30 +215,3 @@ O servidor irá automaticamente:
 - Verificar e criar o banco de dados
 - Criar todas as tabelas necessárias
 - Subir o servidor na porta configurada
-
----
-
-## 📡 Endpoints Disponíveis
-
-### Auth (público)
-| Método | Rota             | Descrição           |
-|--------|-----------------|---------------------|
-| POST   | /auth/registro  | Cadastrar cliente   |
-
----
-
-## 📋 Exemplo de Uso
-
-### Registro de cliente
-```json
-POST /auth/registro
-
-{
-    "nome_completo":   "João Silva",
-    "cpf":             "123.456.789-00",
-    "data_nascimento": "1990-01-15",
-    "email":           "joao@email.com",
-    "telefone":        "11999999999",
-    "senha":           "minhasenha123"
-}
-```

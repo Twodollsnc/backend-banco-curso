@@ -14,6 +14,6 @@ export const env = {
     },
     jwt:{
         secret:         getEnv("JWT_SECRET"),
-        expireIn:       getEnv("JWT_EXPIRES_IN", "8h")
+        expiresIn:       getEnv("JWT_EXPIRES_IN", "8h")
     },
 };

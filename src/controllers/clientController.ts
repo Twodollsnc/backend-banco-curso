@@ -1,5 +1,5 @@
 import { Request, Response} from "express"
-import { registrarCliente } from "../services/authService"
+import { registrarCliente } from "../services/endereçoService/clientServices"
 import { ICriarCliente } from "../types/IClienteCreate"
 import { error } from "node:console"
 export async function registro(req:Request, res:Response)

@@ -1,6 +1,3 @@
-import { startServer } from "./functions/start";
-
-
-
+import { startServer } from "./functions/app";
 
 startServer();
