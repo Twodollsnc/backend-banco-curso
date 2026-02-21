@@ -14,12 +14,12 @@ API backend desenvolvida em **Node.js + TypeScript + MySQL**, simulando a base e
 
 O objetivo é construir um sistema bancário completo, começando pela estrutura fundamental e evoluindo até funcionalidades como:
 
-- Cadastro de clientes
+- Cadastro e autenticação de clientes
 - Contas bancárias
-- Transferências
-- Controle de saldo
-- Autenticação segura
-- Controle transacional
+- Transferências e controle de saldo
+- Chaves Pix
+- Cartões de crédito e faturas
+- Controle transacional completo
 
 Projeto criado com foco em:
 
@@ -27,42 +27,83 @@ Projeto criado com foco em:
 ✔ Separação de responsabilidades  
 ✔ Boas práticas de backend  
 ✔ Estrutura escalável  
-✔ Código limpo  
+✔ Código limpo (máximo 50 linhas por arquivo)  
+✔ Segurança com JWT e rate limiting  
 
 ---
 
 ## 🏗️ Arquitetura do Projeto
 
-A aplicação segue o padrão:
-
-### 🔹 Responsabilidades
+A aplicação segue o padrão **Routes → Controllers → Services → Database**:
 
 | Camada        | Função |
 |--------------|--------|
 | Routes       | Define os endpoints da API |
-| Controllers  | Manipula requisições e respostas |
+| Controllers  | Manipula requisições e respostas HTTP |
 | Services     | Contém as regras de negócio |
-| Database     | Gerencia conexão e inicialização |
+| Database     | Gerencia conexão, inicialização e tabelas |
+| Middlewares  | Autenticação JWT e rate limiting |
 
 ---
 
 ## 📁 Estrutura de Pastas
 
+```
 src/
 │
-├── index.ts # Ponto de entrada da aplicação
+├── index.ts                  # Ponto de entrada da aplicação
 │
-├── server/ # Inicialização do servidor
-│ └── start.ts
+├── server/
+│   └── start.ts              # Inicialização do servidor
 │
-├── database/ # Configuração e inicialização do banco
-│ ├── connection.ts
-│ └── init.ts
+├── config/
+│   └── env.ts                # Centraliza variáveis de ambiente
 │
-├── routes/ # Definição das rotas
-├── controllers/ # Lógica HTTP (req, res)
-├── services/ # Regras de negócio
+├── database/
+│   ├── connection.ts         # Pool de conexões MySQL
+│   ├── init.ts               # Verifica/cria o banco de dados
+│   ├── createTables.ts       # Orquestra criação das tabelas
+│   └── tables/
+│       ├── clientes.ts
+│       ├── enderecos.ts
+│       ├── contas.ts
+│       ├── transacoes.ts
+│       ├── cartoes.ts
+│       ├── faturas.ts
+│       ├── compras_cartao.ts
+│       └── chaves_pix.ts
+│
+├── middlewares/
+│   ├── auth.ts               # Validação JWT
+│   └── rateLimiter.ts        # Limite de requisições por IP
+│
+├── routes/
+│   └── authRoutes.ts
+│
+├── controllers/
+│   └── clienteController.ts
+│
+├── services/
+│   └── clienteService.ts
+│
+└── types/
+    └── I_auth.ts             # Interface AuthRequest
+```
 
+---
+
+## 🗄️ Modelo do Banco de Dados
+
+| Tabela          | Descrição |
+|----------------|-----------|
+| clientes        | Dados cadastrais e autenticação |
+| enderecos       | Endereços vinculados ao cliente |
+| contas          | Contas bancárias do cliente |
+| transacoes      | Histórico de movimentações |
+| cartoes         | Cartões vinculados às contas |
+| faturas         | Faturas mensais dos cartões |
+| compras_cartao  | Compras lançadas nas faturas |
+| chaves_pix      | Chaves Pix por conta (máx. 5) |
 
 ---
 
@@ -71,29 +112,107 @@ src/
 - **Node.js**
 - **TypeScript**
 - **Express**
-- **MySQL**
-- **mysql2**
-- **ts-node-dev**
+- **MySQL / mysql2**
+- **bcrypt** — hash de senhas
+- **jsonwebtoken** — autenticação JWT
+- **express-rate-limit** — proteção contra excesso de requisições
+- **dotenv** — variáveis de ambiente
+- **ts-node-dev** — desenvolvimento com hot reload
 
 ---
 
 ## ⚙️ Funcionalidades Atuais
 
 - ✅ Inicialização automática do servidor
-- ✅ Verificação automática da existência do banco
-- ✅ Criação automática do banco caso não exista
+- ✅ Verificação e criação automática do banco de dados
+- ✅ Criação automática das tabelas (IF NOT EXISTS)
 - ✅ Pool de conexões MySQL
-- ✅ Estrutura pronta para expansão
+- ✅ Variáveis de ambiente centralizadas
+- ✅ Rate limiting (100 req / 15min por IP)
+- ✅ Middleware de autenticação JWT
+- ✅ Registro de clientes com hash de senha
 
 ---
 
+## 🔐 Segurança
+
+- Senhas armazenadas com **bcrypt**
+- Autenticação via **JWT** com expiração configurável
+- Proteção contra força bruta com **rate limiting**
+- Credenciais protegidas via **.env** (nunca no código)
+
+---
 
 ## 🚀 Instalação e Execução
 
 ### 1️⃣ Clone o repositório
 
+```bash
+git clone https://github.com/Twodollsnc/backend-banco-curso.git
+cd backend-banco-curso
+```
+
+### 2️⃣ Instale as dependências
 
 ```bash
-https://github.com/Twodollsnc/backend-banco-curso.git
+npm install
+```
 
+### 3️⃣ Configure o ambiente
 
+Copie o `.env.example` e preencha com suas configurações:
+
+```bash
+cp .env.example .env
+```
+
+```env
+PORT=8000
+
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=sua_senha
+DB_NAME=DB_DigitalBank
+DB_CONNECTION_LIMIT=10
+
+JWT_SECRET=sua_chave_secreta
+JWT_EXPIRES_IN=8h
+```
+
+### 4️⃣ Rode o projeto
+
+```bash
+npm run dev
+```
+
+O servidor irá automaticamente:
+- Verificar e criar o banco de dados
+- Criar todas as tabelas necessárias
+- Subir o servidor na porta configurada
+
+---
+
+## 📡 Endpoints Disponíveis
+
+### Auth (público)
+| Método | Rota             | Descrição           |
+|--------|-----------------|---------------------|
+| POST   | /auth/registro  | Cadastrar cliente   |
+
+---
+
+## 📋 Exemplo de Uso
+
+### Registro de cliente
+```json
+POST /auth/registro
+
+{
+    "nome_completo":   "João Silva",
+    "cpf":             "123.456.789-00",
+    "data_nascimento": "1990-01-15",
+    "email":           "joao@email.com",
+    "telefone":        "11999999999",
+    "senha":           "minhasenha123"
+}
+```
