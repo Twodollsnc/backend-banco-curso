@@ -7,6 +7,7 @@ import { env } from '../config/env'
 import { rateLimiter } from "../middlewares/rateLimiter";
 import { AuthRouter } from "../routers/authRouters";
 import { EnderecosRouter } from "../routers/EnderecoRouter";
+import { contaRouter } from "../routers/contaRouters";
 
 const PORTA = env.server.port
 export async function startServer(){
@@ -15,6 +16,7 @@ export async function startServer(){
     app.use(rateLimiter)
     app.use("/auth", AuthRouter);
     app.use("/enderecos", EnderecosRouter)
+    app.use("/contas", contaRouter)
     try
     {
         await InitializeBanco();

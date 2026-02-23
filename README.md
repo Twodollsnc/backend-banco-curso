@@ -15,6 +15,7 @@ API backend desenvolvida em **Node.js + TypeScript + MySQL**, simulando a base e
 O objetivo é construir um sistema bancário completo, começando pela estrutura fundamental e evoluindo até funcionalidades como:
 
 - Cadastro e autenticação de clientes
+- Endereços vinculados ao cliente
 - Contas bancárias
 - Transferências e controle de saldo
 - Chaves Pix
@@ -36,13 +37,13 @@ Projeto criado com foco em:
 
 A aplicação segue o padrão **Routes → Controllers → Services → Database**:
 
-| Camada        | Função |
-|--------------|--------|
-| Routes       | Define os endpoints da API |
-| Controllers  | Manipula requisições e respostas HTTP |
-| Services     | Contém as regras de negócio |
-| Database     | Gerencia conexão, inicialização e tabelas |
-| Middlewares  | Autenticação JWT e rate limiting |
+| Camada       | Função                                   |
+|-------------|-------------------------------------------|
+| Routes      | Define os endpoints da API                |
+| Controllers | Manipula requisições e respostas HTTP     |
+| Services    | Contém as regras de negócio               |
+| Database    | Gerencia conexão, inicialização e tabelas |
+| Middlewares | Autenticação JWT e rate limiting          |
 
 ---
 
@@ -51,18 +52,18 @@ A aplicação segue o padrão **Routes → Controllers → Services → Database
 ```
 src/
 │
-├── index.ts                  # Ponto de entrada da aplicação
+├── index.ts                        # Ponto de entrada da aplicação
 │
 ├── server/
-│   └── start.ts              # Inicialização do servidor
+│   └── start.ts                    # Inicialização do servidor
 │
 ├── config/
-│   └── env.ts                # Centraliza variáveis de ambiente
+│   └── env.ts                      # Centraliza variáveis de ambiente
 │
 ├── database/
-│   ├── connection.ts         # Pool de conexões MySQL
-│   ├── init.ts               # Verifica/cria o banco de dados
-│   ├── createTables.ts       # Orquestra criação das tabelas
+│   ├── connection.ts               # Pool de conexões MySQL
+│   ├── init.ts                     # Verifica/cria o banco de dados
+│   ├── createTables.ts             # Orquestra criação das tabelas
 │   └── tables/
 │       ├── clientes.ts
 │       ├── enderecos.ts
@@ -74,36 +75,68 @@ src/
 │       └── chaves_pix.ts
 │
 ├── middlewares/
-│   ├── auth.ts               # Validação JWT
-│   └── rateLimiter.ts        # Limite de requisições por IP
+│   ├── auth.ts                     # Validação JWT
+│   └── rateLimiter.ts              # Limite de requisições por IP
 │
-├── routes/
-│   └── authRoutes.ts
+├── routers/
+│   ├── authRouters.ts
+│   ├── enderecoRouters.ts
+│   └── contaRouters.ts
 │
 ├── controllers/
-│   └── clienteController.ts
+│   ├── clienteController.ts
+│   ├── loginController.ts
+│   ├── endereco/
+│   │   ├── addEndereco.ts
+│   │   ├── deletarEndereco.ts
+│   │   └── enderecos.lista.ts
+│   └── conta/
+│       ├── abrirConta.ts
+│       ├── listarContas.ts
+│       └── consultarSaldo.ts
 │
 ├── services/
-│   └── clienteService.ts
+│   ├── clienteService.ts
+│   ├── loginService.ts
+│   ├── enderecoService.ts
+│   └── conta/
+│       ├── abrirConta.ts
+│       ├── gerarNumeroConta.ts
+│       ├── listarContas.ts
+│       └── consultarSaldo.ts
 │
 └── types/
-    └── I_auth.ts             # Interface AuthRequest
+    ├── Iauth.ts                    # Interface AuthRequest
+    ├── IClienteCreate.ts           # Interface de criação de cliente
+    ├── IEnderecosAdd.ts            # Interface de adição de endereço
+    └── ITokenPayload.ts            # Interface do payload do token JWT
 ```
 
 ---
 
 ## 🗄️ Modelo do Banco de Dados
 
-| Tabela          | Descrição |
-|----------------|-----------|
-| clientes        | Dados cadastrais e autenticação |
-| enderecos       | Endereços vinculados ao cliente |
-| contas          | Contas bancárias do cliente |
-| transacoes      | Histórico de movimentações |
-| cartoes         | Cartões vinculados às contas |
-| faturas         | Faturas mensais dos cartões |
-| compras_cartao  | Compras lançadas nas faturas |
-| chaves_pix      | Chaves Pix por conta (máx. 5) |
+| Tabela         | Descrição                          |
+|---------------|-------------------------------------|
+| clientes       | Dados cadastrais e autenticação     |
+| enderecos      | Endereços vinculados ao cliente     |
+| contas         | Contas bancárias do cliente         |
+| transacoes     | Histórico de movimentações          |
+| cartoes        | Cartões vinculados às contas        |
+| faturas        | Faturas mensais dos cartões         |
+| compras_cartao | Compras lançadas nas faturas        |
+| chaves_pix     | Chaves Pix por conta (máx. 5)      |
+
+---
+
+## 🧩 Interfaces TypeScript
+
+| Interface        | Arquivo               | Descrição                                      |
+|-----------------|-----------------------|------------------------------------------------|
+| AuthRequest     | Iauth.ts              | Extende Request com o campo `cliente` do JWT   |
+| IClienteCreate  | IClienteCreate.ts     | Tipagem dos dados de cadastro do cliente       |
+| IEnderecosAdd   | IEnderecosAdd.ts      | Tipagem dos dados de adição de endereço        |
+| ITokenPayload   | ITokenPayload.ts      | Tipagem do payload decodificado do token JWT   |
 
 ---
 
@@ -130,7 +163,14 @@ src/
 - ✅ Variáveis de ambiente centralizadas
 - ✅ Rate limiting (100 req / 15min por IP)
 - ✅ Middleware de autenticação JWT
-- ✅ Registro de clientes com hash de senha
+- ✅ Registro de clientes com hash de senha (bcrypt)
+- ✅ Login com geração de token JWT
+- ✅ Adicionar endereço (rota privada)
+- ✅ Listar endereços (rota privada)
+- ✅ Deletar endereço (rota privada)
+- ✅ Abrir conta bancária com número gerado automaticamente (rota privada)
+- ✅ Listar contas do cliente (rota privada)
+- ✅ Consultar saldo da conta (rota privada)
 
 ---
 
@@ -138,20 +178,37 @@ src/
 
 - Senhas armazenadas com **bcrypt**
 - Autenticação via **JWT** com expiração configurável
-- Proteção contra força bruta com **rate limiting**
+- Proteção contra força bruta com **rate limiting** (100 req / 15min por IP)
 - Credenciais protegidas via **.env** (nunca no código)
+- Rotas privadas protegidas pelo middleware `auth`
+
 ---
 
 ## 📡 Endpoints Disponíveis
 
-### Auth (público)
-| Método | Rota             | Descrição           |
-|--------|-----------------|---------------------|
-| POST   | /auth/registro  | Cadastrar cliente   |
+### 🔓 Auth (público)
+| Método | Rota            | Descrição         |
+|--------|-----------------|-------------------|
+| POST   | /auth/registro  | Cadastrar cliente |
+| POST   | /auth/login     | Login e obter JWT |
+
+### 🔒 Endereços (privado — requer Bearer Token)
+| Método | Rota            | Descrição               |
+|--------|-----------------|-------------------------|
+| POST   | /enderecos      | Adicionar endereço      |
+| GET    | /enderecos      | Listar endereços        |
+| DELETE | /enderecos/:id  | Deletar endereço por ID |
+
+### 🔒 Contas (privado — requer Bearer Token)
+| Método | Rota              | Descrição               |
+|--------|-------------------|-------------------------|
+| POST   | /contas           | Abrir conta bancária    |
+| GET    | /contas           | Listar contas           |
+| GET    | /contas/:id/saldo | Consultar saldo         |
 
 ---
 
-## 📋 Exemplo de Uso
+## 📋 Exemplos de Uso
 
 ### Registro de cliente
 ```json
@@ -165,6 +222,49 @@ POST /auth/registro
     "telefone":        "11999999999",
     "senha":           "minhasenha123"
 }
+```
+
+### Login
+```json
+POST /auth/login
+
+{
+    "email": "joao@email.com",
+    "senha": "minhasenha123"
+}
+```
+
+### Adicionar endereço (requer token)
+```json
+POST /enderecos
+Authorization: Bearer <token>
+
+{
+    "cep":           "01310-100",
+    "rua":           "Avenida Paulista",
+    "numero":        "1000",
+    "complemento":   "Apto 42",
+    "bairro":        "Bela Vista",
+    "cidade":        "São Paulo",
+    "estado":        "SP",
+    "tipo_endereco": "residencial"
+}
+```
+
+### Abrir conta (requer token)
+```json
+POST /contas
+Authorization: Bearer <token>
+
+{
+    "tipo_conta": "corrente"
+}
+```
+
+### Consultar saldo (requer token)
+```
+GET /contas/1/saldo
+Authorization: Bearer <token>
 ```
 
 ---
@@ -204,6 +304,8 @@ DB_CONNECTION_LIMIT=10
 JWT_SECRET=sua_chave_secreta
 JWT_EXPIRES_IN=8h
 ```
+
+> 💡 Para gerar uma chave JWT segura rode: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
 
 ### 4️⃣ Rode o projeto
 
