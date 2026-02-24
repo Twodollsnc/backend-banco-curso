@@ -1,6 +1,6 @@
 import { ResultSetHeader } from "mysql2";
 import { db } from "../../../data/connection";
-import { gerarNumeroConta } from "./gerarNumeroConta";
+import { gerarNumeroConta } from "./gerar.Numero.Conta";
 export async function abrirConta(id_cliente:number, tipo_conta: "corrente"|"poupanca") 
 {
     const numero_conta = await gerarNumeroConta()

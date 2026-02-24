@@ -1,4 +1,4 @@
-import { db } from "../data/connection";
+import { db } from "../../data/connection";
 export async function listaEnderecos(id_cliente: number)
 {
     const [ rows ] = await db.query(

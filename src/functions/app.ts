@@ -4,19 +4,24 @@ import { db } from "../data/connection"
 import { createTables } from "../data/Createtables";
 import { error } from "node:console";
 import { env } from '../config/env'
-import { rateLimiter } from "../middlewares/rateLimiter";
-import { AuthRouter } from "../routers/authRouters";
-import { EnderecosRouter } from "../routers/EnderecoRouter";
-import { contaRouter } from "../routers/contaRouters";
+import { rateLimiter } from "../middlewares/rate.Limiter";
+import { AuthRouter } from "../routers/auth.Routers";
+import { EnderecosRouter } from "../routers/Endereco.Router";
+import { contaRouter } from "../routers/conta.Routers";
+import { transacaoRouter } from "../routers/transacao.Router";
+import { pixRouter } from "../routers/pixRouter";
 
 const PORTA = env.server.port
-export async function startServer(){
+export async function startServer()
+{
     const app = express();
     app.use(express.json())
     app.use(rateLimiter)
     app.use("/auth", AuthRouter);
-    app.use("/enderecos", EnderecosRouter)
-    app.use("/contas", contaRouter)
+    app.use("/enderecos", EnderecosRouter);
+    app.use("/contas", contaRouter);
+    app.use("/transacoes", transacaoRouter);
+    app.use("/pix", pixRouter);
     try
     {
         await InitializeBanco();

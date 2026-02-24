@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/Iauth";
-import { listaEnderecos } from "../../services/listaEnderecos";
+import { listaEnderecos } from "../../services/endereçoService/lista.Enderecos";
 
 export async function listar(req: AuthRequest, res:Response)
 {

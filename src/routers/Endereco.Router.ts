@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { auth } from "../middlewares/auth";
-import { adicionarEndereco } from "../controllers/EncderecoService/addEndereco";
-import { listar } from "../controllers/EncderecoService/enderecos.Listas";
-import { deletar } from "../controllers/EncderecoService/deletarEndereco";
+import { adicionarEndereco } from "../controllers/EnderecoService/add.Endereco";
+import { listar } from "../controllers/EnderecoService/enderecos.Listas";
+import { deletar } from "../controllers/EnderecoService/deletar.Endereco";
 
 export const EnderecosRouter = Router()
 

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { auth } from "../middlewares/auth";
-import { abrir } from "../controllers/conta/AbrirContaController";
-import { listarC } from "../controllers/conta/listarContasController";
-import { saldo } from "../controllers/conta/consultarSaldoController";
+import { abrir } from "../controllers/conta/Abrir.Conta.Controller";
+import { listarC } from "../controllers/conta/listar.Contas.Controller";
+import { saldo } from "../controllers/conta/consultar.Saldo.Controller";
 export const contaRouter = Router()
 contaRouter.post("/",           auth, abrir)
 contaRouter.get("/",            auth, listarC)

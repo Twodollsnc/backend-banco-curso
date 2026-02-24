@@ -1,7 +1,7 @@
 import brcypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import { db } from "../data/connection"
-import { env } from "../config/env"
+import { db } from "../../data/connection"
+import { env } from "../../config/env"
 
 export async function loginCliente(email: string, senha:string) 
 {

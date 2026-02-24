@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/Iauth";
-import { consultarSaldo } from "./abrirConta/consultarSaldo";
+import { consultarSaldo } from "./abrirConta/consultar.Saldo";
 export async function  saldo(req: AuthRequest, res:Response) 
 {
     const id_cliente = req.cliente.id_cliente;    

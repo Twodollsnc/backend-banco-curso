@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/Iauth";
-import { listarContas } from "./abrirConta/listarContas";
+import { listarContas } from "./abrirConta/listar.Contas";
 export async function listarC(req: AuthRequest, res:Response)
 {
     const id_cliente = req.cliente?.id_cliente

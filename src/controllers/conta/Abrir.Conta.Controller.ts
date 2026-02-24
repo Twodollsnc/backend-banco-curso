@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/Iauth";
-import { abrirConta } from "./abrirConta/abrirConta";
+import { abrirConta } from "./abrirConta/abrir.Conta";
 import { error } from "node:console";
 
 export async function abrir(req: AuthRequest, res: Response)

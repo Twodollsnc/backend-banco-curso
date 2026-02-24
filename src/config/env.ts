@@ -1,5 +1,4 @@
-import { get } from "node:http";
-import { getEnv } from "./getEnv"
+import { getEnv } from "./get.Env"
 
 export const env = {
     server: {

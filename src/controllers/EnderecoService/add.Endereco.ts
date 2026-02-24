@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/Iauth";
-import { addEndereco } from "../../services/endereçoService/enderecoServices";
+import { addEndereco } from "../../services/endereçoService/endereco.Services";
 import { error } from "node:console";
 export async function adicionarEndereco(req: AuthRequest, res:Response)
 {

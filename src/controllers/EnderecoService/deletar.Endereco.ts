@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../../types/Iauth";
-import { deletarEndereco } from "../../services/endereçoService/deletarEnderecos";
+import { deletarEndereco } from "../../services/endereçoService/deletar.Enderecos";
 
 export async function deletar(req:AuthRequest, res: Response)
 {

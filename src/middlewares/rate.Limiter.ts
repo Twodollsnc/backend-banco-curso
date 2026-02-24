@@ -1,5 +1,4 @@
 import rateLimit from "express-rate-limit";
-import { error } from "node:console";
 export const rateLimiter = rateLimit
 (
     {

@@ -81,7 +81,9 @@ src/
 ├── routers/
 │   ├── authRouters.ts
 │   ├── enderecoRouters.ts
-│   └── contaRouters.ts
+│   ├── contaRouters.ts
+│   ├── transacaoRouter.ts
+│   └── pixRouter.ts
 │
 ├── controllers/
 │   ├── clienteController.ts
@@ -90,26 +92,43 @@ src/
 │   │   ├── addEndereco.ts
 │   │   ├── deletarEndereco.ts
 │   │   └── enderecos.lista.ts
-│   └── conta/
-│       ├── abrirConta.ts
-│       ├── listarContas.ts
-│       └── consultarSaldo.ts
+│   ├── conta/
+│   │   ├── abrirConta.ts
+│   │   ├── listarContas.ts
+│   │   └── consultarSaldo.ts
+│   ├── transacao/
+│   │   ├── deposito.ts
+│   │   └── transferenciaTed.ts
+│   └── pix/
+│       ├── cadastrarChave.ts
+│       ├── listarChaves.ts
+│       └── deletarChave.ts
 │
 ├── services/
 │   ├── clienteService.ts
 │   ├── loginService.ts
 │   ├── enderecoService.ts
-│   └── conta/
-│       ├── abrirConta.ts
-│       ├── gerarNumeroConta.ts
-│       ├── listarContas.ts
-│       └── consultarSaldo.ts
+│   ├── conta/
+│   │   ├── abrirConta.ts
+│   │   ├── gerarNumeroConta.ts
+│   │   ├── listarContas.ts
+│   │   └── consultarSaldo.ts
+│   ├── transacao/
+│   │   ├── depositar.ts
+│   │   └── transferenciaTed.ts
+│   └── pix/
+│       ├── cadastrarChave.ts
+│       ├── listarChaves.ts
+│       └── deletarChave.ts
 │
 └── types/
     ├── Iauth.ts                    # Interface AuthRequest
     ├── IClienteCreate.ts           # Interface de criação de cliente
     ├── IEnderecosAdd.ts            # Interface de adição de endereço
-    └── ITokenPayload.ts            # Interface do payload do token JWT
+    ├── ITokenPayload.ts            # Interface do payload do token JWT
+    ├── ITransfTed.ts               # Interface de transferência TED
+    ├── IChavePix.ts                # Interface de chave Pix
+    └── ITipoChave.ts               # Type dos tipos de chave Pix
 ```
 
 ---
@@ -131,12 +150,15 @@ src/
 
 ## 🧩 Interfaces TypeScript
 
-| Interface        | Arquivo               | Descrição                                      |
-|-----------------|-----------------------|------------------------------------------------|
-| AuthRequest     | Iauth.ts              | Extende Request com o campo `cliente` do JWT   |
-| IClienteCreate  | IClienteCreate.ts     | Tipagem dos dados de cadastro do cliente       |
-| IEnderecosAdd   | IEnderecosAdd.ts      | Tipagem dos dados de adição de endereço        |
-| ITokenPayload   | ITokenPayload.ts      | Tipagem do payload decodificado do token JWT   |
+| Interface       | Arquivo          | Descrição                                    |
+|----------------|------------------|----------------------------------------------|
+| AuthRequest    | Iauth.ts         | Extende Request com o campo `cliente` do JWT |
+| IClienteCreate | IClienteCreate.ts| Tipagem dos dados de cadastro do cliente     |
+| IEnderecosAdd  | IEnderecosAdd.ts | Tipagem dos dados de adição de endereço      |
+| ITokenPayload  | ITokenPayload.ts | Tipagem do payload decodificado do token JWT |
+| ITransfTed     | ITransfTed.ts    | Tipagem dos dados de transferência TED       |
+| IChavePix      | IChavePix.ts     | Tipagem dos dados de chave Pix               |
+| TTipoChave     | ITipoChave.ts    | Type dos tipos de chave Pix                  |
 
 ---
 
@@ -171,6 +193,11 @@ src/
 - ✅ Abrir conta bancária com número gerado automaticamente (rota privada)
 - ✅ Listar contas do cliente (rota privada)
 - ✅ Consultar saldo da conta (rota privada)
+- ✅ Depósito em conta com transaction MySQL (rota privada)
+- ✅ Transferência TED entre contas (rota privada)
+- ✅ Cadastrar chave Pix por conta (máx. 5) (rota privada)
+- ✅ Listar chaves Pix da conta (rota privada)
+- ✅ Deletar chave Pix (rota privada)
 
 ---
 
@@ -181,6 +208,7 @@ src/
 - Proteção contra força bruta com **rate limiting** (100 req / 15min por IP)
 - Credenciais protegidas via **.env** (nunca no código)
 - Rotas privadas protegidas pelo middleware `auth`
+- Transactions MySQL garantindo integridade financeira
 
 ---
 
@@ -193,18 +221,31 @@ src/
 | POST   | /auth/login     | Login e obter JWT |
 
 ### 🔒 Endereços (privado — requer Bearer Token)
-| Método | Rota            | Descrição               |
-|--------|-----------------|-------------------------|
-| POST   | /enderecos      | Adicionar endereço      |
-| GET    | /enderecos      | Listar endereços        |
-| DELETE | /enderecos/:id  | Deletar endereço por ID |
+| Método | Rota               | Descrição               |
+|--------|--------------------|-------------------------|
+| POST   | /enderecos         | Adicionar endereço      |
+| GET    | /enderecos         | Listar endereços        |
+| DELETE | /enderecos/:id     | Deletar endereço por ID |
 
 ### 🔒 Contas (privado — requer Bearer Token)
-| Método | Rota              | Descrição               |
-|--------|-------------------|-------------------------|
-| POST   | /contas           | Abrir conta bancária    |
-| GET    | /contas           | Listar contas           |
-| GET    | /contas/:id/saldo | Consultar saldo         |
+| Método | Rota               | Descrição               |
+|--------|--------------------|-------------------------|
+| POST   | /contas            | Abrir conta bancária    |
+| GET    | /contas            | Listar contas           |
+| GET    | /contas/:id/saldo  | Consultar saldo         |
+
+### 🔒 Transações (privado — requer Bearer Token)
+| Método | Rota                  | Descrição               |
+|--------|-----------------------|-------------------------|
+| POST   | /transacoes/deposito  | Depositar em conta      |
+| POST   | /transacoes/ted       | Transferência TED       |
+
+### 🔒 Pix (privado — requer Bearer Token)
+| Método | Rota                       | Descrição               |
+|--------|----------------------------|-------------------------|
+| POST   | /pix/chaves                | Cadastrar chave Pix     |
+| GET    | /pix/chaves?id_conta=1     | Listar chaves da conta  |
+| DELETE | /pix/chaves/:id?id_conta=1 | Deletar chave Pix       |
 
 ---
 
@@ -234,37 +275,184 @@ POST /auth/login
 }
 ```
 
-### Adicionar endereço (requer token)
+### Depositar em conta
 ```json
-POST /enderecos
+POST /transacoes/deposito
 Authorization: Bearer <token>
 
 {
-    "cep":           "01310-100",
-    "rua":           "Avenida Paulista",
-    "numero":        "1000",
-    "complemento":   "Apto 42",
-    "bairro":        "Bela Vista",
-    "cidade":        "São Paulo",
-    "estado":        "SP",
-    "tipo_endereco": "residencial"
+    "id_conta": 1,
+    "valor": 500.00
 }
 ```
 
-### Abrir conta (requer token)
+### Transferência TED
 ```json
-POST /contas
+POST /transacoes/ted
 Authorization: Bearer <token>
 
 {
-    "tipo_conta": "corrente"
+    "id_conta": 1,
+    "numero_conta_destino": "9876543210",
+    "valor": 100.00
 }
 ```
 
-### Consultar saldo (requer token)
-```
-GET /contas/1/saldo
+### Cadastrar chave Pix
+```json
+POST /pix/chaves
 Authorization: Bearer <token>
+
+{
+    "id_conta":   1,
+    "tipo_chave": "cpf",
+    "valor_chave": "123.456.789-00"
+}
+```
+
+### Cadastrar chave aleatória
+```json
+POST /pix/chaves
+Authorization: Bearer <token>
+
+{
+    "id_conta":   1,
+    "tipo_chave": "aleatoria"
+}
+```
+
+---
+
+## 📱 Exemplos de Uso no React Native
+
+### Configuração base
+```typescript
+const API_URL = "http://SEU_IP:8000"
+
+// salva o token após o login
+import AsyncStorage from "@react-native-async-storage/async-storage"
+await AsyncStorage.setItem("token", response.token)
+
+// função auxiliar pra pegar o token
+async function getToken() {
+    return await AsyncStorage.getItem("token")
+}
+```
+
+### Registro
+```typescript
+async function registrar() {
+    const response = await fetch(`${API_URL}/auth/registro`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nome_completo:   "João Silva",
+            cpf:             "123.456.789-00",
+            data_nascimento: "1990-01-15",
+            email:           "joao@email.com",
+            telefone:        "11999999999",
+            senha:           "minhasenha123"
+        })
+    })
+    const data = await response.json()
+    console.log(data)
+}
+```
+
+### Login
+```typescript
+async function login() {
+    const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: "joao@email.com",
+            senha: "minhasenha123"
+        })
+    })
+    const data = await response.json()
+    await AsyncStorage.setItem("token", data.token)
+}
+```
+
+### Consultar saldo (rota privada)
+```typescript
+async function consultarSaldo(id_conta: number) {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/contas/${id_conta}/saldo`, {
+        method: "GET",
+        headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    const data = await response.json()
+    console.log("Saldo:", data.saldo)
+}
+```
+
+### Depositar
+```typescript
+async function depositar(id_conta: number, valor: number) {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/transacoes/deposito`, {
+        method: "POST",
+        headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ id_conta, valor })
+    })
+    const data = await response.json()
+    console.log(data)
+}
+```
+
+### Transferência TED
+```typescript
+async function transferirTed(id_conta: number, numero_conta_destino: string, valor: number) {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/transacoes/ted`, {
+        method: "POST",
+        headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ id_conta, numero_conta_destino, valor })
+    })
+    const data = await response.json()
+    console.log(data)
+}
+```
+
+### Cadastrar chave Pix
+```typescript
+async function cadastrarChavePix(id_conta: number, tipo_chave: string, valor_chave?: string) {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/pix/chaves`, {
+        method: "POST",
+        headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ id_conta, tipo_chave, valor_chave })
+    })
+    const data = await response.json()
+    console.log(data)
+}
+```
+
+### Tratamento de token expirado
+```typescript
+async function request(url: string, options: RequestInit) {
+    const response = await fetch(url, options)
+
+    if (response.status === 401) {
+        await AsyncStorage.removeItem("token")
+        // redireciona pra tela de login
+    }
+    return response.json()
+}
 ```
 
 ---
@@ -317,3 +505,5 @@ O servidor irá automaticamente:
 - Verificar e criar o banco de dados
 - Criar todas as tabelas necessárias
 - Subir o servidor na porta configurada
+
+> ⚠️ Para acessar a API pelo React Native em dispositivo físico, use o IP da sua máquina na rede local em vez de `localhost`. Ex: `http://192.168.1.100:8000`

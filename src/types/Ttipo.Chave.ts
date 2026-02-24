@@ -1,0 +1,1 @@
+export type TTipoChave = "cpf" | "email" | "telefone" | "aleatoria"
