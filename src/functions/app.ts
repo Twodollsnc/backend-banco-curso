@@ -10,6 +10,7 @@ import { EnderecosRouter } from "../routers/Endereco.Router";
 import { contaRouter } from "../routers/conta.Routers";
 import { transacaoRouter } from "../routers/transacao.Router";
 import { pixRouter } from "../routers/pixRouter";
+import { perfilRouter } from "../routers/perfil.Router";
 
 const PORTA = env.server.port
 export async function startServer()
@@ -22,6 +23,7 @@ export async function startServer()
     app.use("/contas", contaRouter);
     app.use("/transacoes", transacaoRouter);
     app.use("/pix", pixRouter);
+    app.use("/perfil", perfilRouter)
     try
     {
         await InitializeBanco();

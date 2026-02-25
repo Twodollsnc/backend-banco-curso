@@ -4,7 +4,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-Database-orange)
 ![Express](https://img.shields.io/badge/Express-Backend-lightgrey)
-![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
+![Status](https://img.shields.io/badge/Status-Concluído-brightgreen)
 
 ---
 
@@ -19,8 +19,8 @@ O objetivo é construir um sistema bancário completo, começando pela estrutura
 - Contas bancárias
 - Transferências e controle de saldo
 - Chaves Pix
-- Cartões de crédito e faturas
-- Controle transacional completo
+- Extrato de transações
+- Perfil do cliente
 
 Projeto criado com foco em:
 
@@ -83,7 +83,8 @@ src/
 │   ├── enderecoRouters.ts
 │   ├── contaRouters.ts
 │   ├── transacaoRouter.ts
-│   └── pixRouter.ts
+│   ├── pixRouter.ts
+│   └── perfilRouter.ts
 │
 ├── controllers/
 │   ├── clienteController.ts
@@ -99,11 +100,15 @@ src/
 │   ├── transacao/
 │   │   ├── deposito.ts
 │   │   ├── transferenciaTed.ts
-│   │   └── transferenciaPix.ts
-│   └── pix/
-│       ├── cadastrarChave.ts
-│       ├── listarChaves.ts
-│       └── deletarChave.ts
+│   │   ├── transferenciaPix.ts
+│   │   └── extrato.ts
+│   ├── pix/
+│   │   ├── cadastrarChave.ts
+│   │   ├── listarChaves.ts
+│   │   └── deletarChave.ts
+│   └── perfil/
+│       ├── buscarPerfil.ts
+│       └── atualizarPerfil.ts
 │
 ├── services/
 │   ├── clienteService.ts
@@ -117,11 +122,15 @@ src/
 │   ├── transacao/
 │   │   ├── depositar.ts
 │   │   ├── transferenciaTed.ts
-│   │   └── transferenciaPix.ts
-│   └── pix/
-│       ├── cadastrarChave.ts
-│       ├── listarChaves.ts
-│       └── deletarChave.ts
+│   │   ├── transferenciaPix.ts
+│   │   └── extrato.ts
+│   ├── pix/
+│   │   ├── cadastrarChave.ts
+│   │   ├── listarChaves.ts
+│   │   └── deletarChave.ts
+│   └── perfil/
+│       ├── buscarPerfil.ts
+│       └── atualizarPerfil.ts
 │
 └── types/
     ├── Iauth.ts                    # Interface AuthRequest
@@ -131,7 +140,7 @@ src/
     ├── ITransfTed.ts               # Interface de transferência TED
     ├── ITransfPix.ts               # Interface de transferência Pix
     ├── IChavePix.ts                # Interface de chave Pix
-    └── ITipoChave.ts               # Type dos tipos de chave Pix
+    └── TtipoChave.ts               # Type dos tipos de chave Pix
 ```
 
 ---
@@ -162,7 +171,7 @@ src/
 | ITransfTed     | ITransfTed.ts     | Tipagem dos dados de transferência TED       |
 | ITransfPix     | ITransfPix.ts     | Tipagem dos dados de transferência Pix       |
 | IChavePix      | IChavePix.ts      | Tipagem dos dados de chave Pix               |
-| TTipoChave     | ITipoChave.ts     | Type dos tipos de chave Pix                  |
+| TTipoChave     | TtipoChave.ts     | Type dos tipos de chave Pix                  |
 
 ---
 
@@ -180,7 +189,7 @@ src/
 
 ---
 
-## ⚙️ Funcionalidades Atuais
+## ⚙️ Funcionalidades
 
 - ✅ Inicialização automática do servidor
 - ✅ Verificação e criação automática do banco de dados
@@ -204,6 +213,9 @@ src/
 - ✅ Cadastrar chave Pix por conta (máx. 5) (rota privada)
 - ✅ Listar chaves Pix da conta (rota privada)
 - ✅ Deletar chave Pix (rota privada)
+- ✅ Extrato de transações por conta (rota privada)
+- ✅ Buscar perfil do cliente logado (rota privada)
+- ✅ Atualizar perfil do cliente logado (rota privada)
 
 ---
 
@@ -228,6 +240,12 @@ src/
 | POST   | /auth/registro  | Cadastrar cliente |
 | POST   | /auth/login     | Login e obter JWT |
 
+### 🔒 Perfil (privado — requer Bearer Token)
+| Método | Rota     | Descrição                      |
+|--------|----------|--------------------------------|
+| GET    | /perfil  | Buscar dados do cliente logado |
+| PUT    | /perfil  | Atualizar dados do cliente     |
+
 ### 🔒 Endereços (privado — requer Bearer Token)
 | Método | Rota               | Descrição               |
 |--------|--------------------|-------------------------|
@@ -237,17 +255,18 @@ src/
 
 ### 🔒 Contas (privado — requer Bearer Token)
 | Método | Rota               | Descrição                     |
-|--------|--------------------|------------------------------ |
+|--------|--------------------|-------------------------------|
 | POST   | /contas            | Abrir conta bancária (máx. 2) |
 | GET    | /contas            | Listar contas                 |
 | GET    | /contas/:id/saldo  | Consultar saldo               |
 
 ### 🔒 Transações (privado — requer Bearer Token)
-| Método | Rota                  | Descrição               |
-|--------|-----------------------|-------------------------|
-| POST   | /transacoes/deposito  | Depositar em conta      |
-| POST   | /transacoes/ted       | Transferência TED       |
-| POST   | /transacoes/pix       | Transferência Pix       |
+| Método | Rota                          | Descrição               |
+|--------|-------------------------------|-------------------------|
+| POST   | /transacoes/deposito          | Depositar em conta      |
+| POST   | /transacoes/ted               | Transferência TED       |
+| POST   | /transacoes/pix               | Transferência Pix       |
+| GET    | /transacoes/extrato/:id_conta | Extrato da conta        |
 
 ### 🔒 Pix (privado — requer Bearer Token)
 | Método | Rota                        | Descrição               |
@@ -284,6 +303,22 @@ POST /auth/login
 }
 ```
 
+### Buscar perfil
+```
+GET /perfil
+Authorization: Bearer <token>
+```
+
+### Atualizar perfil
+```json
+PUT /perfil
+Authorization: Bearer <token>
+
+{
+    "telefone": "11988887777"
+}
+```
+
 ### Depositar em conta
 ```json
 POST /transacoes/deposito
@@ -293,6 +328,12 @@ Authorization: Bearer <token>
     "id_conta": 1,
     "valor": 500.00
 }
+```
+
+### Extrato da conta
+```
+GET /transacoes/extrato/1
+Authorization: Bearer <token>
 ```
 
 ### Transferência TED
@@ -393,6 +434,38 @@ async function login() {
 }
 ```
 
+### Buscar perfil
+```typescript
+async function buscarPerfil() {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/perfil`, {
+        headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    const data = await response.json()
+    console.log(data)
+}
+```
+
+### Atualizar perfil
+```typescript
+async function atualizarPerfil(telefone: string) {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/perfil`, {
+        method: "PUT",
+        headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ telefone })
+    })
+    const data = await response.json()
+    console.log(data)
+}
+```
+
 ### Consultar saldo
 ```typescript
 async function consultarSaldo(id_conta: number) {
@@ -405,6 +478,21 @@ async function consultarSaldo(id_conta: number) {
     })
     const data = await response.json()
     console.log("Saldo:", data.saldo)
+}
+```
+
+### Extrato
+```typescript
+async function extrato(id_conta: number) {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/transacoes/extrato/${id_conta}`, {
+        headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    const data = await response.json()
+    console.log(data)
 }
 ```
 
